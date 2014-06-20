@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map EngduinoButton
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+EngduinoButton		KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin				KEYWORD2
+end				KEYWORD2
+waitUntilPressed		KEYWORD2
+waitUntilReleased	KEYWORD2
+seenPressReset		KEYWORD2
+seenPress			KEYWORD2
+seenReleaseReset		KEYWORD2
+seenRelease		KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
