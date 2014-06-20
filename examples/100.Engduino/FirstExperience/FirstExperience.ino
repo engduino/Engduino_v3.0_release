@@ -90,8 +90,9 @@ void setup()
   takeBaseTemp();
 
   EngduinoAccelerometer.begin();
+#ifndef __BOARD_ENGDUINOV1
   EngduinoMagnetometer.begin();
-  
+#endif
   //setup for pulse sensors
   interruptSetup();                 // sets up to read Pulse Sensor signal every 2mS 
   

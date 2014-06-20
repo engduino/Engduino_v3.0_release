@@ -1,3 +1,4 @@
+#ifndef __BOARD_ENGDUINOV1
 #include "EngduinoMagnetometer.h"
 #include "Wire.h"
 #include <EngduinoLEDs.h>
@@ -76,3 +77,4 @@ void Magnetometer()
   }
   
 }
+#endif
