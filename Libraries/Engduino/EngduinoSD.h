@@ -21,11 +21,13 @@
 #ifdef __BOARD_ENGDUINOV3
 class EngduinoSDClass 
 {
+	protected:
+		volatile unsigned char regTmp;
+
 	private:
 		File file; // Main file. Only one file can be open at a time.
 		char filePath[13];
 		uint8_t fileMode;
-		boolean debug;
 		boolean initialized;
 		boolean opened;
 		boolean autoOpenClose;

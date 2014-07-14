@@ -18,6 +18,13 @@
 #include "pins_arduino.h"
 #include "EngduinoSD.h"
 
+#define DEBUGG 0
+#if DEBUGG
+	#define PRINTLN(...) Serial.println(__VA_ARGS__)
+#else
+	#define PRINTLN(...)
+#endif
+
 #ifdef __BOARD_ENGDUINOV3
 /*
  *  Initialise Class Variables
@@ -31,7 +38,6 @@
 */
 EngduinoSDClass::EngduinoSDClass()
 {
-	debug = false;
 	initialized = false;
 	opened = false;
 	autoOpenClose = false;
@@ -46,17 +52,19 @@ EngduinoSDClass::EngduinoSDClass()
 */
 boolean EngduinoSDClass::begin()
 {
-	if(debug) Serial.println("begin() init");
+	PRINTLN("begin() init");
 	if(initialized) return true; // If we are already initialized, return true.
 	if(!isAttached()) return false;
 	// make sure that the default chip select pin is set to
   	// output, even if you don't use it:
   	pinMode(SPI_SS_PIN, OUTPUT);
+	regTmp = TIMSK4;
 	TIMSK4  = 0x00;	// Disable TMR4 interrupts (Used by LEDs).
+	PRINTLN("SD.begin...");
 	boolean b = SD.begin(SDCARD_CS);
-	if(b) initialized = true;
-	TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
-    return true;
+	TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
+	if(b) {initialized = true; PRINTLN("SD.begin...success"); return true;}
+    return false;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -68,35 +76,41 @@ boolean EngduinoSDClass::begin()
 */
 boolean EngduinoSDClass::begin(const char *filepath, uint8_t mode)
 {
-	if(debug) Serial.println("begin(..., ...)");
+	PRINTLN("begin(..., ...)");
 	if(initialized) return true; // If we are already initialized, return true.
 	if(!isAttached()) return false;
   	// make sure that the default chip select pin is set to
   	// output, even if you don't use it:
   	pinMode(SPI_SS_PIN, OUTPUT);
+	regTmp = TIMSK4;
 	TIMSK4  = 0x00;	// Disable TMR4 interrupts (Used by LEDs).
-	if(debug) Serial.println("SD.begin");
+	PRINTLN("SD.begin");
 	if(SD.begin(SDCARD_CS))
 	{
-		if(debug) Serial.println("SD.open");
+		PRINTLN("SD.open");
 		file = SD.open(filepath, mode);
 		if(file) // if the file is available return true
 		{
+			PRINTLN("File is available.");
 			strncpy(filePath, filepath, 12); // Maximum length of file name is 8.
 			filePath[12] = 0;
 			fileMode = mode;
 			file.close();
-			TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+			TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
 			initialized = true;
 			opened = true;
 			autoOpenClose = true;
 			return true;
 		}
+		else
+		{
+			PRINTLN("File is not available!");
+		}
 	}
 	initialized = false;
 	opened = false;
 	autoOpenClose = false;
-	TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+	TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
     return false;
 }
 
@@ -109,23 +123,28 @@ boolean EngduinoSDClass::begin(const char *filepath, uint8_t mode)
 */
 boolean EngduinoSDClass::open(const char *filepath, uint8_t mode)
 {
-	if(debug) Serial.println("open(..., ...)");
+	PRINTLN("open(..., ...)");
 	if(!isAttached()) return false;
+	regTmp = TIMSK4;
 	TIMSK4  = 0x00;	// Disable TMR4 interrupts (Used by LEDs).
-	if(debug) Serial.println("SD.open");
+	PRINTLN("SD.open");
 	file = SD.open(filepath, mode);
-	if(file) // if the file is available return true
-	{
+	if(file) { // if the file is available return true
+		PRINTLN("File is available.");
 		strncpy(filePath, filepath, 12); // Maximum length of file name is 8.
 		filePath[12] = 0;
 		fileMode = mode;
 		opened = true;
 		autoOpenClose = false;
-		TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+		TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
 		return true;
 	}
+	else 
+	{
+		PRINTLN("File is not available!");
+	}
 	opened = false;
-	TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+	TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
     return false;
 }
 
@@ -139,17 +158,18 @@ boolean EngduinoSDClass::open(const char *filepath, uint8_t mode)
 
 boolean EngduinoSDClass::close()
 {
-	if(debug) Serial.println("close()");
+	PRINTLN("close()");
 	if(!isAttached()) return false;
+	regTmp = TIMSK4;
 	TIMSK4  = 0x00;	// Disable TMR4 interrupts (Used by LEDs).
 	if(file) // if the file is available return true
 	{
 		file.close();
-		TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+		TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
 		opened = false;
 		return true;
 	}
-	TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+	TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
     return false;
 }
 
@@ -187,11 +207,12 @@ boolean EngduinoSDClass::writeln(const String &str)
 
 boolean EngduinoSDClass::_write(const String &str, boolean ln)
 {
-	if(debug) Serial.println("write(...)");
+	PRINTLN("write(...)");
 	if(fileMode != FILE_WRITE) return false;
 	if(!isAttached()) return false;
 	if(!initialized) return false;
 	if(!opened) return false;
+	regTmp = TIMSK4;
 	TIMSK4  = 0x00;	// Disable TMR4 interrupts (Used by LEDs).
 	if(autoOpenClose)
 	{
@@ -200,7 +221,7 @@ boolean EngduinoSDClass::_write(const String &str, boolean ln)
 		{
 			(ln) ? file.println(str) : file.print(str);
 			file.close();
-			TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+			TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
 			return true;
 		}
 	}
@@ -209,11 +230,11 @@ boolean EngduinoSDClass::_write(const String &str, boolean ln)
 		if(file)
 		{
 			(ln) ? file.println(str) : file.print(str);
-			TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+			TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
 			return true;
 		}
 	}
-	TIMSK4 |= 0x40;  // Enable TMR4 interrupts (Used by LEDs).
+	TIMSK4 = regTmp;  // Enable TMR4 interrupts (Used by LEDs).
 	return false;
 }
 
@@ -226,8 +247,10 @@ boolean EngduinoSDClass::_write(const String &str, boolean ln)
 
 int EngduinoSDClass::available()
 {
-	if(debug) Serial.println("available(...)");
-	if(!file) return 0;
+	if(!file) {
+		PRINTLN("available(...) file error!");
+		return 0; 
+	}
 	return file.available();
 }
 
@@ -240,9 +263,14 @@ int EngduinoSDClass::available()
 
 uint8_t EngduinoSDClass::read()
 {
-	if(debug) Serial.println("read(...)");
-	if(fileMode != FILE_READ) return 0;
-	if(!file) return 0;
+	if(fileMode != FILE_READ)  {
+		PRINTLN("read(...) fileMode != FILE_READ");
+		return 0; 
+	}
+	if(!file) {
+		PRINTLN("read(...) file error!");
+		return 0; 
+	}
 	return file.read();
 }
 
@@ -255,9 +283,11 @@ uint8_t EngduinoSDClass::read()
 
 boolean EngduinoSDClass::isAttached()
 {
-	if(debug) Serial.println("isAttached(...)");
-	float analogIn = analogRead(SDCARD_ATTACHED);
-	if(analogIn < 1.0) return true; // less than 1V
+	PRINTLN("isAttached(...)");
+	// Read the input on analog pin SDCARD_ATTACHED:
+	int analogIn = analogRead(SDCARD_ATTACHED); // Goes from 0 - 1023
+	if(analogIn < 300) {PRINTLN("Attached"); return true;} // less than ~1V
+	PRINTLN("NOT Attached");
 	return false;
 }
 
