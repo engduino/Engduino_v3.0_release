@@ -15,7 +15,7 @@
 */
 
 #include "pins_arduino.h"
-#include "../Wire/Wire.h"
+#include <Wire.h>
 #include "EngduinoMagnetometer.h"
 
 #if defined (__BOARD_ENGDUINOV2) || defined(__BOARD_ENGDUINOV3)
@@ -136,15 +136,15 @@ void EngduinoMagnetometerClass::xyz(float buf[3])
 /**
 * \brief Read the temperature value from the magnetometer
 * \return The 8 bit temperature value in 2s complement - values lie between
-*         -40캜 and 125캜, but are uncalibrated.
+*         -40째C and 125째C, but are uncalibrated.
 *
 * Get the temperature as measured by the magnetometer - the temperature
 * of the die. The register contains the die temperature in degrees C expressed
 * as an 8-bit 2's complement number. The sensitivity of the temperature sensor
-* is factory trimmed to 1캜/LSB. The temperature sensor offset is not factory
+* is factory trimmed to 1째C/LSB. The temperature sensor offset is not factory
 * trimmed and must be calibrated by the user software if higher absolute
 * accuracy is required. Note: The register allows for temperature measurements
-* from -128캜 to 127캜 but the output range is limited to -40캜 to 125캜. The
+* from -128째C to 127째C but the output range is limited to -40째C to 125째C. The
 * temperature data is updated on every measurement cycle.
 *
 */
