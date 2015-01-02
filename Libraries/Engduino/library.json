@@ -1,0 +1,15 @@
+{
+  "name": "EngduinoV3",
+  "keywords": "infrared, ir, compass, magnetometer, light, accelerometer, thermistor, temperature, sensor",
+  "description": "The Engduino is a computing and electronics teaching tool",
+  "url": "http://www.engduino.org",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/engduino/Engduino_v3.0_release.git"
+  },
+  "include": "Engduino_v3.0_release/Libraries/Engduino",
+  "examples": "Engduino_v3.0_release/examples/100.Engduino/*/*.ino",  
+  "frameworks": "arduino",
+  "platforms": "atmelavr"
+}
