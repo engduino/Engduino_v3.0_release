@@ -15,7 +15,7 @@
 */
 
 #include "pins_arduino.h"
-#include "../Wire/Wire.h"
+#include <Wire.h>
 #include "EngduinoAccelerometer.h"
 
 /*---------------------------------------------------------------------------*/
